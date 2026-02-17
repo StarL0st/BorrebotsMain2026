@@ -50,12 +50,12 @@ public class DriveSubsystem extends SubsystemBase {
       DriveConstants.kRearRightTurningCanId,
       DriveConstants.kBackRightChassisAngularOffset);
 
-      private double xSpeedDelivered;
-      private double ySpeedDelivered;
-      private double rotDelivered;
+  private double xSpeedDelivered;
+  private double ySpeedDelivered;
+  private double rotDelivered;
 
-      private final AHRS m_gyro = new AHRS(NavXComType.kMXP_SPI);
-  // Odometry class for tracking robot pose
+  private final AHRS m_gyro = new AHRS(NavXComType.kMXP_SPI);
+
   SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(
       DriveConstants.kDriveKinematics,
       Rotation2d.fromDegrees(m_gyro.getAngle()),
@@ -74,10 +74,10 @@ public class DriveSubsystem extends SubsystemBase {
     SmartDashboard.putBoolean("SlowMode", DriveConstants.kSlowMode);
     SmartDashboard.putNumber("GyroAngle", getHeading());
      RobotConfig config;
-    try{
-      config = RobotConfig.fromGUISettings();
+    try {
+        config = RobotConfig.fromGUISettings();
        // Configure AutoBuilder last
-    AutoBuilder.configure(
+        AutoBuilder.configure(
             this::getPose, // Robot pose supplier
             this::resetOdometry, // Method to reset odometry (will be called if your auto has a starting pose)
             this::getRobotRelativeSpeeds, // ChassisSpeeds supplier. MUST BE ROBOT RELATIVE
@@ -99,7 +99,7 @@ public class DriveSubsystem extends SubsystemBase {
               return false;
             },
             this // Reference to this subsystem to set requirements
-    );
+        );
     } catch (Exception e) {
       // Handle exception as needed
       e.printStackTrace();
