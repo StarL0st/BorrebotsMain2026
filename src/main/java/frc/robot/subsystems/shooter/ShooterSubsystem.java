@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ShooterConstants;
 
-public class shooterSubsystem extends SubsystemBase {
+public class ShooterSubsystem extends SubsystemBase {
 
   // public enum State{
   //   SHOOTING,
@@ -38,7 +38,7 @@ public class shooterSubsystem extends SubsystemBase {
   double output = 0.0;
   
   /** Creates a new shooterSubsystem. */
-  public shooterSubsystem() {
+  public ShooterSubsystem() {
     shooterSpark = new SparkMax(ShooterConstants.kShooterId, MotorType.kBrushless);
     shooterConfig = new SparkMaxConfig();
     

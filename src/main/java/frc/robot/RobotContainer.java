@@ -12,28 +12,43 @@ import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.subsystems.drive.DriveSubsystem;
 import frc.robot.subsystems.vision.Limelight;
-import frc.robot.subsystems.shooter.shooterSubsystem;
+import frc.robot.subsystems.shooter.ShooterSubsystem;
 
 /** Add your docs here. */
 public class RobotContainer {
 
-    DriveSubsystem Chassis = new DriveSubsystem();
-    shooterSubsystem shooter = new shooterSubsystem();
-    Limelight limelight = new Limelight(Chassis);
+    private DriveSubsystem drive;
+    private ShooterSubsystem shooter;
+    private Limelight limelight;
 //  private final SendableChooser<Command> autoChooser;
 
     CommandXboxController m_Controller = new CommandXboxController(0);
     boolean isCompetition = false;
 
-    public RobotContainer(){
+    public RobotContainer() {
+        switch (Constants.CURRENT_MODE) {
+            case REAL:
+                drive = new DriveSubsystem();
+                shooter = new ShooterSubsystem();
+                limelight = new Limelight(drive);
+                break;
+            case SIM:
+
+                break;
+            default:
+                drive = new DriveSubsystem();
+                shooter = new ShooterSubsystem();
+                limelight = new Limelight(drive);
+                break;
+        }
 
         configureButtons();
 
-        Chassis.setDefaultCommand(new RunCommand(()-> Chassis.drive(
-        MathUtil.applyDeadband(-m_Controller.getLeftX()*0.2, ControllerConstants.controlDeadband),
+        drive.setDefaultCommand(new RunCommand(()-> drive.drive(
+        MathUtil.applyDeadband(-m_Controller.getLeftX()* 0.2, ControllerConstants.controlDeadband),
         MathUtil.applyDeadband(m_Controller.getLeftY()*0.2, ControllerConstants.controlDeadband),
         MathUtil.applyDeadband(-m_Controller.getRightX()*0.2, ControllerConstants.controlDeadband),
-        DriveConstants.kfieldRelative), Chassis));
+        DriveConstants.kfieldRelative), drive));
  
 
         shooter.setDefaultCommand(new RunCommand(()-> shooter.setShootingPower(m_Controller.getRightTriggerAxis()), shooter));
@@ -48,9 +63,9 @@ public class RobotContainer {
 
     private void configureButtons(){
 
-        m_Controller.start().onTrue(Chassis.changeDrivingMode());
+        m_Controller.start().onTrue(drive.changeDrivingMode());
 
-        m_Controller.leftBumper().onChange(Chassis.changeSpeed());
+        m_Controller.leftBumper().onChange(drive.changeSpeed());
 
         // m_Controller.rightBumper().whileTrue(limelight.AllignXAxis());
 
