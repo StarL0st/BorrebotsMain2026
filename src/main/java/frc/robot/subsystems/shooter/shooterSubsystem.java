@@ -2,7 +2,7 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems;
+package frc.robot.subsystems.shooter;
 
 import com.revrobotics.PersistMode;
 import com.revrobotics.ResetMode;
@@ -27,8 +27,8 @@ public class shooterSubsystem extends SubsystemBase {
 
   
   private SparkMax shooterSpark;
- private SparkMax Spark2;
- private SparkMax SparkTransfer;
+  private SparkMax Spark2;
+  private SparkMax SparkTransfer;
 
   private SparkMaxConfig shooterConfig;
   private SparkMaxConfig Spark2Config;
@@ -58,8 +58,8 @@ public class shooterSubsystem extends SubsystemBase {
             .smartCurrentLimit(50);
 
     
-        shooterSpark.configure(shooterConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-        // Spark2.configure(Spark2Config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    shooterSpark.configure(shooterConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    // Spark2.configure(Spark2Config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
 
@@ -83,6 +83,6 @@ public class shooterSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     SparkTransfer.set(0.0);
-   SmartDashboard.putNumber("Shooting speed", output);
+    SmartDashboard.putNumber("Shooting speed", output);
   }
 }

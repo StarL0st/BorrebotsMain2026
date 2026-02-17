@@ -4,22 +4,15 @@
 
 package frc.robot;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.filter.Debouncer.DebounceType;
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.DriveConstants;
-import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.subsystems.Limelight;
-import frc.robot.subsystems.shooterSubsystem;
+import frc.robot.subsystems.drive.DriveSubsystem;
+import frc.robot.subsystems.vision.Limelight;
+import frc.robot.subsystems.shooter.shooterSubsystem;
 
 /** Add your docs here. */
 public class RobotContainer {
@@ -29,54 +22,49 @@ public class RobotContainer {
     Limelight limelight = new Limelight(Chassis);
 //  private final SendableChooser<Command> autoChooser;
 
-CommandXboxController m_Controller = new CommandXboxController(0);
-boolean isCompetition = false;
+    CommandXboxController m_Controller = new CommandXboxController(0);
+    boolean isCompetition = false;
 
-public RobotContainer(){
+    public RobotContainer(){
 
- configureButtons();
+        configureButtons();
 
-Chassis.setDefaultCommand(new RunCommand(()-> Chassis.drive(
-MathUtil.applyDeadband(-m_Controller.getLeftX()*0.2, ControllerConstants.controlDeadband),
-MathUtil.applyDeadband(m_Controller.getLeftY()*0.2, ControllerConstants.controlDeadband),
-MathUtil.applyDeadband(-m_Controller.getRightX()*0.2, ControllerConstants.controlDeadband),
- DriveConstants.kfieldRelative), Chassis));
+        Chassis.setDefaultCommand(new RunCommand(()-> Chassis.drive(
+        MathUtil.applyDeadband(-m_Controller.getLeftX()*0.2, ControllerConstants.controlDeadband),
+        MathUtil.applyDeadband(m_Controller.getLeftY()*0.2, ControllerConstants.controlDeadband),
+        MathUtil.applyDeadband(-m_Controller.getRightX()*0.2, ControllerConstants.controlDeadband),
+        DriveConstants.kfieldRelative), Chassis));
  
 
- shooter.setDefaultCommand(new RunCommand(()-> shooter.setShootingPower(m_Controller.getRightTriggerAxis()), shooter));
+        shooter.setDefaultCommand(new RunCommand(()-> shooter.setShootingPower(m_Controller.getRightTriggerAxis()), shooter));
 
    
 
  
-//   autoChooser = AutoBuilder.buildAutoChooser();
+        //   autoChooser = AutoBuilder.buildAutoChooser();
 
-    // SmartDashboard.putData("Auto Chooser", autoChooser);
+        // SmartDashboard.putData("Auto Chooser", autoChooser);
+    }
 
-}
+    private void configureButtons(){
 
-private void configureButtons(){
+        m_Controller.start().onTrue(Chassis.changeDrivingMode());
 
-    m_Controller.start().onTrue(Chassis.changeDrivingMode());
+        m_Controller.leftBumper().onChange(Chassis.changeSpeed());
 
-    m_Controller.leftBumper().onChange(Chassis.changeSpeed());
+        // m_Controller.rightBumper().whileTrue(limelight.AllignXAxis());
 
-    // m_Controller.rightBumper().whileTrue(limelight.AllignXAxis());
+        m_Controller.leftTrigger(0.05).whileTrue(new RunCommand(()->shooter.activateTransfer(m_Controller.getLeftTriggerAxis()), shooter)) ;
+    }
 
-    m_Controller.leftTrigger(0.05).whileTrue(new RunCommand(()->shooter.activateTransfer(m_Controller.getLeftTriggerAxis()), shooter)) ;
+    public Command getAutonomousCommand(){
 
+
+        return null;
+    }
+
+    public void shuffleboardData(){
     
-
-    
-}
-
-public Command getAutonomousCommand(){
-
-
-    return null;
-}
-
-public void shuffleboardData(){
-    
-}
+    }
 
 }
