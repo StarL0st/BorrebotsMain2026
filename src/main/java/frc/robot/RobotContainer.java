@@ -15,23 +15,28 @@ import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.ShooterConstants;
+import frc.robot.Constants.intakeConstants;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.Limelight;
 
 import frc.robot.subsystems.shooterSubsystem;
-import frc.robot.subsystems.transferSubsystem;
+
 
 /** Add your docs here. */
 public class RobotContainer {
 
     DriveSubsystem Chassis = new DriveSubsystem();
     shooterSubsystem shooter = new shooterSubsystem();
+
     Limelight limelight = new Limelight(Chassis);
-    
-    transferSubsystem transfer = new transferSubsystem();
+
+    IntakeSubsystem intake = new IntakeSubsystem();
     //  private final SendableChooser<Command> autoChooser;
 
 CommandXboxController m_Controller = new CommandXboxController(0); 
+CommandXboxController m_Controller1 = new CommandXboxController(1); 
 // CommandPS5Controller m_Controller = new CommandPS5Controller(0);
 
 public RobotContainer(){
@@ -46,8 +51,10 @@ MathUtil.applyDeadband(-m_Controller.getRightX()*0.2, ControllerConstants.contro
  
 //  limelight.setDefaultCommand(new RunCommand(()->limelight.stopCommand(), limelight));
 
- shooter.setDefaultCommand(new RunCommand(()-> shooter.setShootingPower(0.0), shooter));
+ shooter.setDefaultCommand(new InstantCommand(()->shooter.setState(ShooterConstants.kShooterIdle), shooter));
 
+
+ intake.setDefaultCommand(new InstantCommand(()->intake.setState(intakeConstants.kintakeIdleState), intake));
 //  shooter.setDefaultCommand(new RunCommand(()-> shooter.setShootingPower(m_Controller.getLeftX()), shooter));
 
 
@@ -67,9 +74,11 @@ private void configureButtons(){
 
     m_Controller.b().whileTrue(limelight.AllignXAxis(m_Controller));
 m_Controller.x().onTrue(new InstantCommand(()->shooter.reverseShoot(), shooter));
-m_Controller.rightTrigger(0.05).whileTrue(new RunCommand(()-> shooter.setShootingPower(0.8), shooter));
+m_Controller.rightTrigger(0.05).whileTrue(new RunCommand(()->shooter.setState(ShooterConstants.kShooterActiveState), shooter)).whileFalse(new RunCommand(()->shooter.setState(ShooterConstants.kShooterIdle), shooter));
+
+
     // m_Controller.rightTrigger(0.05).whileTrue(Commands.run(()->{transfer.activateTransfer(0.6);}, transfer).unless(()->!shooter.ShooterCharged()));
-m_Controller.leftTrigger(0.05).whileTrue(new RunCommand(()->transfer.activateTransfer(0.6), transfer));
+
 
 
     m_Controller.leftBumper().onTrue(Chassis.changeSpeed());
@@ -77,6 +86,14 @@ m_Controller.leftTrigger(0.05).whileTrue(new RunCommand(()->transfer.activateTra
     m_Controller.rightBumper().onTrue(Chassis.changeDrivingMode());
 
     // m_Controller.a().onTrue(new InstantCommand(()-> Chassis.zeroHeading(), Chassis));
+m_Controller.leftTrigger(0.05)
+.whileTrue(new RunCommand(()->intake.setState(intakeConstants.kIntakingState), intake))
+.whileFalse(new RunCommand(()->intake.setState(intakeConstants.kintakeIdleState), intake));
+
+m_Controller.leftBumper().onTrue(new RunCommand(()->intake.setState(intakeConstants.kintakeHomeState), intake));
+    m_Controller1.leftTrigger(0.05).whileTrue(new RunCommand(()->intake.setRollerPower(0.7), intake));
+
+       
 }   
 
 

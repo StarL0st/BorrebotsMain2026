@@ -19,35 +19,51 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkBaseConfig;
 import com.revrobotics.spark.config.SparkMaxConfig;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.ShooterConstants;
+import frc.robot.subsystems.IntakeSubsystem.IntakeState;
 
 public class shooterSubsystem extends SubsystemBase {
 
- 
+ public enum ShootingStates{
+  ACTIVE,
+  CHARGED,
+  IDLE
+ }
 
+ ShootingStates state = ShootingStates.IDLE;
   private VictorSPX leftMotor;
   
-  private PIDController pid;
+  private PIDController shooterpid;
 
+   private VictorSPX transferMotor;
+
+    private PIDController transferpid ;
   
-  double output = 0.0;
+  double shooteroutput = 0.8;
+
+  double transferoutput = 0.8;
   
   /** Creates a new shooterSubsystem. */
   public shooterSubsystem() {
 
     leftMotor = new VictorSPX(ShooterConstants.kShooterId);
 
-    pid = new PIDController(0.05, 0.0, 0.0);
+    shooterpid = new PIDController(1, 0.0, 0.0);
+
+    transferMotor = new VictorSPX(3);
+
+transferpid = new PIDController(1, 0.0, 0.0);
   }
 
 
   public void setShootingPower(double output){
 
-    this.output = output;
+   
 
     
 
@@ -59,24 +75,84 @@ else{leftMotor.set(VictorSPXControlMode.PercentOutput, -output);}
     ShooterConstants.kShooterReversed = !ShooterConstants.kShooterReversed;
   }
 
+
   public boolean ShooterActive(){
-    if(output > 0.1){
+    if(shooteroutput > 0.1){
       return true;
+
     }
     return false;
   }
 
   public boolean ShooterCharged(){
-    if(leftMotor.getMotorOutputPercent()> 0.8){
+    if( MathUtil.isNear(shooteroutput, leftMotor.getMotorOutputPercent(), 0.075) ){
       return true;
     }
     return false;
   }
 
+  public void setState(int intstate){
+  switch (intstate) {
+    case 0:
+    state = ShootingStates.IDLE;
+      break;
+  
+    case 1:
+    state = ShootingStates.ACTIVE;
+      break;
+
+    case 2:
+    state = ShootingStates.CHARGED;
+    break;
+  }
+
+}
+
+
+public void setPowers(double shooteroutput, double transferoutput){
+  this.shooteroutput = shooteroutput;
+  this.transferoutput =transferoutput;
+}
+ 
+  public void Transferpower(double output){
+   
+    transferpid.calculate(transferMotor.getMotorOutputPercent(),output);
+    transferMotor.set(VictorSPXControlMode.PercentOutput, output);
+  }
+
+  public void stopTransfer(){
+    transferMotor.set(VictorSPXControlMode.PercentOutput, 0.0);
+  }
+
+  
   @Override
   public void periodic() {
     SmartDashboard.putBoolean("ShooterReversed", ShooterConstants.kShooterReversed);
     SmartDashboard.putBoolean("ShooterActive", ShooterCharged());
- 
+    SmartDashboard.putString("shooterState", state.toString());
+    switch (state) {
+      case IDLE:
+      
+      setShootingPower(0.0);
+
+      Transferpower(0.0);
+        
+        break;
+    
+      case ACTIVE:
+
+      setShootingPower(shooteroutput);
+
+      if(ShooterCharged()){state = ShootingStates.CHARGED;
+Transferpower(transferoutput);}
+      
+      
+      case CHARGED:
+      
+        break;
+    }
+
+    SmartDashboard.putNumber("transferoutput", transferMotor.getMotorOutputPercent());
+    SmartDashboard.putNumber("shooterOutput", leftMotor.getMotorOutputPercent());
   }
 }
