@@ -32,58 +32,59 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 public class DriveSubsystem extends SubsystemBase {
   // Create MAXSwerveModules
-  private final MAXSwerveModule m_frontLeft = new MAXSwerveModule(
-      DriveConstants.kFrontLeftDrivingCanId,
-      DriveConstants.kFrontLeftTurningCanId,
-      DriveConstants.kFrontLeftChassisAngularOffset);
+    private final MAXSwerveModule m_frontLeft = new MAXSwerveModule(
+        DriveConstants.kFrontLeftDrivingCanId,
+        DriveConstants.kFrontLeftTurningCanId,
+        DriveConstants.kFrontLeftChassisAngularOffset);
 
-  private final MAXSwerveModule m_frontRight = new MAXSwerveModule(
-      DriveConstants.kFrontRightDrivingCanId,
-      DriveConstants.kFrontRightTurningCanId,
-      DriveConstants.kFrontRightChassisAngularOffset);
+    private final MAXSwerveModule m_frontRight = new MAXSwerveModule(
+        DriveConstants.kFrontRightDrivingCanId,
+        DriveConstants.kFrontRightTurningCanId,
+        DriveConstants.kFrontRightChassisAngularOffset);
 
-  private final MAXSwerveModule m_rearLeft = new MAXSwerveModule(
-      DriveConstants.kRearLeftDrivingCanId,
-      DriveConstants.kRearLeftTurningCanId,
-      DriveConstants.kBackLeftChassisAngularOffset);
+    private final MAXSwerveModule m_rearLeft = new MAXSwerveModule(
+        DriveConstants.kRearLeftDrivingCanId,
+        DriveConstants.kRearLeftTurningCanId,
+        DriveConstants.kBackLeftChassisAngularOffset);
 
-  private final MAXSwerveModule m_rearRight = new MAXSwerveModule(
-      DriveConstants.kRearRightDrivingCanId,
-      DriveConstants.kRearRightTurningCanId,
-      DriveConstants.kBackRightChassisAngularOffset);
+    private final MAXSwerveModule m_rearRight = new MAXSwerveModule(
+        DriveConstants.kRearRightDrivingCanId,
+        DriveConstants.kRearRightTurningCanId,
+        DriveConstants.kBackRightChassisAngularOffset);
 
     
     private double xSpeedGlobal;
-private double ySpeedGlobal;
-private double rotSpeedGlobal;
+    private double ySpeedGlobal;
+    private double rotSpeedGlobal;
 
-      private final AHRS m_gyro = new AHRS(NavXComType.kMXP_SPI);
+    private final AHRS m_gyro = new AHRS(NavXComType.kMXP_SPI);
 
         // Slew rate filter variables for controlling lateral acceleration
-  private double m_currentRotation = 0.0;
-  private double m_currentTranslationDir = 0.0;
-  private double m_currentTranslationMag = 0.0;
+    private double m_currentRotation = 0.0;
+    private double m_currentTranslationDir = 0.0;
+    private double m_currentTranslationMag = 0.0;
 
-  private SlewRateLimiter m_magLimiter = new SlewRateLimiter(DriveConstants.kMagnitudeSlewRate);
-  private SlewRateLimiter m_rotLimiter = new SlewRateLimiter(DriveConstants.kRotationalSlewRate);
-  private double m_prevTime = WPIUtilJNI.now() * 1e-6;
-  // Odometry class for tracking robot pose
-  SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(
-      DriveConstants.kDriveKinematics,
-      Rotation2d.fromDegrees(m_gyro.getAngle()*-1),
-      new SwerveModulePosition[] {
-          m_frontLeft.getPosition(),
-          m_frontRight.getPosition(),
-          m_rearLeft.getPosition(),
-          m_rearRight.getPosition()
-      });
+    private SlewRateLimiter m_magLimiter = new SlewRateLimiter(DriveConstants.kMagnitudeSlewRate);
+    private SlewRateLimiter m_rotLimiter = new SlewRateLimiter(DriveConstants.kRotationalSlewRate);
+    private double m_prevTime = WPIUtilJNI.now() * 1e-6;
+    // Odometry class for tracking robot pose
+    SwerveDriveOdometry m_odometry = new SwerveDriveOdometry(
+        DriveConstants.kDriveKinematics,
+        Rotation2d.fromDegrees(m_gyro.getAngle()*-1),
+        new SwerveModulePosition[] {
+            m_frontLeft.getPosition(),
+            m_frontRight.getPosition(),
+            m_rearLeft.getPosition(),
+            m_rearRight.getPosition()
+        }
+    );
 
   /** Creates a new DriveSubsystem. */
   public DriveSubsystem() {
     // Usage reporting for MAXSwerve template
     HAL.report(tResourceType.kResourceType_RobotDrive, tInstances.kRobotDriveSwerve_MaxSwerve);
    
-     RobotConfig config;
+    RobotConfig config;
     try{
       config = RobotConfig.fromGUISettings();
        // Configure AutoBuilder last
@@ -101,12 +102,8 @@ private double rotSpeedGlobal;
               // Boolean supplier that controls when the path will be mirrored for the red alliance
               // This will flip the path being followed to the red side of the field.
               // THE ORIGIN WILL REMAIN ON THE BLUE SIDE
-
               var alliance = DriverStation.getAlliance();
-              if (alliance.isPresent()) {
-                return alliance.get() == DriverStation.Alliance.Red;
-              }
-              return false;
+                return alliance.filter(value -> value == DriverStation.Alliance.Red).isPresent();
             },
             this // Reference to this subsystem to set requirements
     );
@@ -122,23 +119,24 @@ private double rotSpeedGlobal;
   public void periodic() {
     // Update the odometry in the periodic block
     m_odometry.update(
-        Rotation2d.fromDegrees(m_gyro.getAngle()*-1),
+        Rotation2d.fromDegrees(m_gyro.getAngle() * -1),
         new SwerveModulePosition[] {
             m_frontLeft.getPosition(),
             m_frontRight.getPosition(),
             m_rearLeft.getPosition(),
             m_rearRight.getPosition()
-        });
+        }
+    );
 
-         if(DriveConstants.kSlowMode) {
-DriveConstants.kMaxSpeedMetersPerSecond = 1.2;
-DriveConstants.kMaxAngularSpeed = Math.PI* 1.25;
-       }else{
-        DriveConstants.kMaxSpeedMetersPerSecond = 4.8;
-        DriveConstants.kMaxAngularSpeed = 2*Math.PI;
+       if(DriveConstants.kSlowMode) {
+             DriveConstants.kMaxSpeedMetersPerSecond = 1.2;
+             DriveConstants.kMaxAngularSpeed = Math.PI * 1.25;
+       } else {
+            DriveConstants.kMaxSpeedMetersPerSecond = 4.8;
+            DriveConstants.kMaxAngularSpeed = 2 * Math.PI;
        }
-       
-         SmartDashboard.putBoolean("FieldRelative", DriveConstants.kfieldRelative);
+
+    SmartDashboard.putBoolean("FieldRelative", DriveConstants.kfieldRelative);
     SmartDashboard.putBoolean("SlowMode", DriveConstants.kSlowMode);
     SmartDashboard.putNumber("GyroAngle", m_gyro.getAngle());
   }
@@ -179,22 +177,8 @@ DriveConstants.kMaxAngularSpeed = Math.PI* 1.25;
    *                      field.
    */
   public void drive(double xSpeed, double ySpeed, double rot, boolean fieldRelative) {
-
-   
-
-
-
-
-
-  
-
-
-
-
-
-    
-double xSpeedCommanded;
-    double ySpeedCommanded;
+      double xSpeedCommanded;
+      double ySpeedCommanded;
 
       // Convert XY to polar for rate limiting
       double inputTranslationDir = Math.atan2(ySpeed, xSpeed);

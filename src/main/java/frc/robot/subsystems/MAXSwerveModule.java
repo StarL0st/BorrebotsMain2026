@@ -21,17 +21,17 @@ import edu.wpi.first.math.kinematics.SwerveModuleState;
 
 /** Add your docs here. */
 public class MAXSwerveModule {
-      private final SparkMax m_drivingSpark;
-  private final SparkMax m_turningSpark;
+    private final SparkMax m_drivingSpark;
+    private final SparkMax m_turningSpark;
 
-  private final RelativeEncoder m_drivingEncoder;
-  private final AbsoluteEncoder m_turningEncoder;
+    private final RelativeEncoder m_drivingEncoder;
+    private final AbsoluteEncoder m_turningEncoder;
 
-  private final SparkClosedLoopController m_drivingClosedLoopController;
-  private final SparkClosedLoopController m_turningClosedLoopController;
+    private final SparkClosedLoopController m_drivingClosedLoopController;
+    private final SparkClosedLoopController m_turningClosedLoopController;
 
-  private double m_chassisAngularOffset = 0;
-  private SwerveModuleState m_desiredState = new SwerveModuleState(0.0, new Rotation2d());
+    private double m_chassisAngularOffset = 0;
+    private SwerveModuleState m_desiredState = new SwerveModuleState(0.0, new Rotation2d());
 
   
 

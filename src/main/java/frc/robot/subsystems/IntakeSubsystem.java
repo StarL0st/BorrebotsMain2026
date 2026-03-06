@@ -24,46 +24,47 @@ import frc.robot.Constants.IntakeConstants;
 
 public class IntakeSubsystem extends SubsystemBase {
 
-  public enum IntakeState {
-    INTAKING,
-    HOME,
-    IDLE
-  }
+    public enum IntakeState {
+        INTAKING,
+        HOME,
+        IDLE
+    }
 
-  public IntakeState state = IntakeState.IDLE;
-  private SparkMax pivotSpark;
-  private SparkMax rollerSpark;
 
-  private RelativeEncoder pivotSparkEncoder;
-  private RelativeEncoder rollerSparkEncoder;
+    public IntakeState state = IntakeState.IDLE;
+    private SparkMax pivotSpark;
+    private SparkMax rollerSpark;
 
-  private SparkMaxConfig pivotConfig;
-  private SparkMaxConfig rollerConfig;
+    private RelativeEncoder pivotSparkEncoder;
+    private RelativeEncoder rollerSparkEncoder;
 
-  private ProfiledPIDController pivotPid = new ProfiledPIDController(0.085, 0.0, 0.0, new Constraints(1000, 375));
+    private SparkMaxConfig pivotConfig;
+    private SparkMaxConfig rollerConfig;
 
-// private PIDController pivotPid = new PIDController(0.08, 0.0, 0.0);
-  /** Creates a new IntakeSubsystem. */
-  public IntakeSubsystem() {
-    pivotSpark = new SparkMax(IntakeConstants.kPivotId, MotorType.kBrushless);
-    rollerSpark = new SparkMax(IntakeConstants.kRollerId, MotorType.kBrushless);
+    private ProfiledPIDController pivotPid = new ProfiledPIDController(0.085, 0.0, 0.0, new Constraints(1000, 375));
 
-    pivotSparkEncoder = pivotSpark.getEncoder();
-    rollerSparkEncoder = rollerSpark.getEncoder();
+    // private PIDController pivotPid = new PIDController(0.08, 0.0, 0.0);
+     /** Creates a new IntakeSubsystem. */
+    public IntakeSubsystem() {
+        pivotSpark = new SparkMax(IntakeConstants.kPivotId, MotorType.kBrushless);
+        rollerSpark = new SparkMax(IntakeConstants.kRollerId, MotorType.kBrushless);
 
-    pivotConfig = new SparkMaxConfig();
-    rollerConfig = new SparkMaxConfig();
+        pivotSparkEncoder = pivotSpark.getEncoder();
+        rollerSparkEncoder = rollerSpark.getEncoder();
 
-    pivotConfig.idleMode(IdleMode.kBrake)
+        pivotConfig = new SparkMaxConfig();
+        rollerConfig = new SparkMaxConfig();
+
+        pivotConfig.idleMode(IdleMode.kBrake)
             .inverted(IntakeConstants.kPivotInverted)
             .smartCurrentLimit(50);
 
-    pivotConfig.encoder.positionConversionFactor(IntakeConstants.kAngleFactor)
+        pivotConfig.encoder.positionConversionFactor(IntakeConstants.kAngleFactor)
             .velocityConversionFactor(IntakeConstants.kAngleFactor / 60);
 
-    pivotSpark.configure(pivotConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    rollerSpark.configure(rollerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-  }
+        pivotSpark.configure(pivotConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+        rollerSpark.configure(rollerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    }
 
 
     public double getAngle(){
@@ -94,13 +95,12 @@ public class IntakeSubsystem extends SubsystemBase {
         }
     }
 
-    public Command setAngle(double angle){
- 
-
+    public Command setAngle(double angle) {
         return Commands.run(()->{
             double output = pivotPid.calculate(getAngle(), angle);
             pivotSpark.setVoltage(MathUtil.clamp(-1, output, 1));
-    }, this).beforeStarting(()->pivotPid.reset(getAngle()), this);}
+        }, this).beforeStarting( () -> pivotPid.reset(getAngle()), this );
+    }
 
 
 
